@@ -11,6 +11,7 @@ import (
 	"github.com/Rodrigueslcs/challenge-backend/api/handler"
 	"github.com/Rodrigueslcs/challenge-backend/config"
 	"github.com/Rodrigueslcs/challenge-backend/infrastructure/repository"
+	"github.com/Rodrigueslcs/challenge-backend/usecase/category"
 	"github.com/Rodrigueslcs/challenge-backend/usecase/video"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -28,10 +29,14 @@ func main() {
 	videoRepo := repository.NewVideoMySQL(db)
 	videoService := video.NewService(videoRepo)
 
+	categoryRepo := repository.NewCategoryMySQL(db)
+	categoryService := category.NewService(categoryRepo)
+
 	n := negroni.Classic()
 	r := mux.NewRouter()
 
-	handler.MakeBookHandlers(r, videoService)
+	handler.MakeVideoHandlers(r, videoService)
+	handler.MakeCategoryHandlers(r, categoryService)
 
 	n.UseHandler(r)
 
@@ -47,32 +52,3 @@ func main() {
 	log.Fatal(server.ListenAndServe())
 
 }
-
-// var maxDigit int
-// 	fmt.Scanf("%d", &maxDigit)
-
-// 	var maxString string
-// 	var maxInt int
-// 	for i := 0; i < 4; i++ {
-// 		maxString += strconv.Itoa(maxDigit)
-// 	}
-// 	maxInt, _ = strconv.Atoi(maxString)
-
-// 	for i := 1000; i < maxInt; i++ {
-// 		sun := 0
-// 		for _, v := range strconv.Itoa(i) {
-// 			digit, _ := strconv.Atoi(string(v))
-// 			if digit <= maxDigit {
-// 				sun += digit
-// 			}
-// 		}
-// 		if sun == 21 {
-// 			cont = true
-// 			fmt.Println(i)
-// 		}
-// 		sun = 0
-// 	}
-
-// 	if !cont {
-// 		fmt.Println("nulo")
-// 	}

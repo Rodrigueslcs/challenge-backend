@@ -1,4 +1,4 @@
-package video
+package category
 
 import "github.com/Rodrigueslcs/challenge-backend/entity"
 
@@ -12,17 +12,17 @@ func NewService(r Repository) *Service {
 	}
 }
 
-func (s *Service) ListVideos() ([]*entity.Video, error) {
+func (s *Service) ListCategories() ([]*entity.Category, error) {
 	return s.repo.List()
 }
 
-func (s *Service) GetVideo(id int) (*entity.Video, error) {
+func (s *Service) GetCategory(id int) (*entity.Category, error) {
 	return s.repo.Get(id)
 }
 
-func (s *Service) CreateVideo(title, description, url string, categoryID int) (int, error) {
+func (s *Service) CreateCategory(title, color string) (int, error) {
 
-	e, err := entity.NewVideo(title, description, url, categoryID)
+	e, err := entity.NewCategory(title, color)
 	if err != nil {
 		return e.ID, err
 	}
@@ -33,8 +33,8 @@ func (s *Service) CreateVideo(title, description, url string, categoryID int) (i
 	return s.repo.Create(e)
 }
 
-func (s *Service) UpdateVideo(id int, title, description, url string, categoryID int) error {
-	e, err := entity.NewVideo(title, description, url, categoryID)
+func (s *Service) UpdateCategory(id int, title, color string) error {
+	e, err := entity.NewCategory(title, color)
 	if err != nil {
 		return err
 	}
@@ -45,8 +45,8 @@ func (s *Service) UpdateVideo(id int, title, description, url string, categoryID
 	return s.repo.Update(e)
 }
 
-func (s *Service) DeleteVideo(id int) error {
-	_, err := s.GetVideo(id)
+func (s *Service) DeleteCategory(id int) error {
+	_, err := s.GetCategory(id)
 	if err != nil {
 		return err
 	}

@@ -7,15 +7,15 @@ import (
 	"strconv"
 
 	"github.com/Rodrigueslcs/challenge-backend/api/presenter"
-	"github.com/Rodrigueslcs/challenge-backend/usecase/video"
+	"github.com/Rodrigueslcs/challenge-backend/usecase/category"
 	"github.com/gorilla/mux"
 )
 
-func listVideos(service video.UseCase) http.Handler {
+func listCategories(service category.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		errorMessage := "Error reading Videos"
-		data, err := service.ListVideos()
+		errorMessage := "Erro ao escrever list de Categorias"
+		data, err := service.ListCategories()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
@@ -34,18 +34,18 @@ func listVideos(service video.UseCase) http.Handler {
 	})
 }
 
-func getVideo(service video.UseCase) http.Handler {
+func getCategory(service category.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		params := mux.Vars(r)
-		errorMessage := "Erro ao buscar Videos"
+		errorMessage := "Erro ao buscar Categoria"
 		id, err := strconv.ParseInt(params["id"], 10, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
 		}
-		data, err := service.GetVideo(int(id))
+		data, err := service.GetCategory(int(id))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -63,14 +63,12 @@ func getVideo(service video.UseCase) http.Handler {
 	})
 }
 
-func createVideo(service video.UseCase) http.Handler {
+func createCategory(service category.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Erro ao adicionar Video"
 		var input struct {
-			Title       string `json:"title"`
-			Description string `json:"description"`
-			URL         string `json:"url"`
-			CategoryID  int    `json:"category_id"`
+			Title string `json:"title"`
+			Color string `json:"color"`
 		}
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
@@ -80,7 +78,7 @@ func createVideo(service video.UseCase) http.Handler {
 			return
 		}
 
-		id, err := service.CreateVideo(input.Title, input.Description, input.URL, input.CategoryID)
+		id, err := service.CreateCategory(input.Title, input.Color)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -88,12 +86,10 @@ func createVideo(service video.UseCase) http.Handler {
 			return
 		}
 
-		toJSON := &presenter.Video{
-			ID:          id,
-			Title:       input.Title,
-			Description: input.Description,
-			URL:         input.URL,
-			CategoryID:  input.CategoryID,
+		toJSON := &presenter.Category{
+			ID:    id,
+			Title: input.Title,
+			Color: input.Color,
 		}
 
 		w.WriteHeader(http.StatusCreated)
@@ -106,10 +102,10 @@ func createVideo(service video.UseCase) http.Handler {
 	})
 }
 
-func updateVideo(service video.UseCase) http.Handler {
+func updateCategory(service category.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Erro ao Alterar Video"
-		var input presenter.Video
+		errorMessage := "Erro ao Alterar Categoria"
+		var input presenter.Category
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			log.Println(err.Error())
@@ -117,7 +113,7 @@ func updateVideo(service video.UseCase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		err = service.UpdateVideo(input.ID, input.Title, input.Description, input.URL, input.CategoryID)
+		err = service.UpdateCategory(input.ID, input.Title, input.Color)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -135,10 +131,10 @@ func updateVideo(service video.UseCase) http.Handler {
 	})
 }
 
-func deleteVideo(service video.UseCase) http.Handler {
+func deleteCategory(service category.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		errorMessage := "Erro ao Excluir Video"
+		errorMessage := "Erro ao Excluir Categoria"
 		params := mux.Vars(r)
 		id, err := strconv.ParseInt(params["id"], 10, 64)
 		if err != nil {
@@ -146,7 +142,7 @@ func deleteVideo(service video.UseCase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		err = service.DeleteVideo(int(id))
+		err = service.DeleteCategory(int(id))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -156,11 +152,11 @@ func deleteVideo(service video.UseCase) http.Handler {
 	})
 }
 
-func MakeVideoHandlers(r *mux.Router, service video.UseCase) {
-	r.Handle("/videos", listVideos(service)).Methods("GET", "OPTIONS").Name("listVideos")
-	r.Handle("/videos/{id}", getVideo(service)).Methods("GET", "OPTIONS").Name("getVideo")
-	r.Handle("/videos", createVideo(service)).Methods("POST", "OPTIONS").Name("createVideo")
-	r.Handle("/videos", updateVideo(service)).Methods("PUT", "OPTIONS").Name("updateVideo")
-	r.Handle("/videos/{id}", deleteVideo(service)).Methods("DELETE", "OPTIONS").Name("deleteVideo")
+func MakeCategoryHandlers(r *mux.Router, service category.UseCase) {
+	r.Handle("/categories", listCategories(service)).Methods("GET", "OPTIONS").Name("listCategories")
+	r.Handle("/categories/{id}", getCategory(service)).Methods("GET", "OPTIONS").Name("getCategory")
+	r.Handle("/categories", createCategory(service)).Methods("POST", "OPTIONS").Name("createCategory")
+	r.Handle("/categories", updateCategory(service)).Methods("PUT", "OPTIONS").Name("updateCategory")
+	r.Handle("/categories/{id}", deleteCategory(service)).Methods("DELETE", "OPTIONS").Name("deleteCategory")
 
 }

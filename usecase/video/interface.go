@@ -14,7 +14,7 @@ type Repository interface {
 type UseCase interface {
 	ListVideos() ([]*entity.Video, error)
 	GetVideo(id int) (*entity.Video, error)
-	CreateVideo(title, description, url string) (int, error)
-	UpdateVideo(id int, title, description, url string) error
+	CreateVideo(title, description, url string, categoryID int) (int, error)
+	UpdateVideo(id int, title, description, url string, categoryID int) error
 	DeleteVideo(id int) error
 }

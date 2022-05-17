@@ -19,7 +19,7 @@ func NewVideoMySQL(db *sql.DB) *VideoMySQL {
 }
 
 func (r *VideoMySQL) List() ([]*entity.Video, error) {
-	smtp, err := r.db.Prepare(`select id, title, description, url from video `)
+	smtp, err := r.db.Prepare(`select id, title, description, url, category_id from video `)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (r *VideoMySQL) List() ([]*entity.Video, error) {
 	}
 	for rows.Next() {
 		var v entity.Video
-		err = rows.Scan(&v.ID, &v.Title, &v.Description, &v.URL)
+		err = rows.Scan(&v.ID, &v.Title, &v.Description, &v.URL, &v.CategoryID)
 		if err != nil {
 			return nil, err
 		}
@@ -40,7 +40,7 @@ func (r *VideoMySQL) List() ([]*entity.Video, error) {
 }
 
 func (r *VideoMySQL) Get(id int) (*entity.Video, error) {
-	smtp, err := r.db.Prepare(`select id, title, description, url from video where id = ?`)
+	smtp, err := r.db.Prepare(`select id, title, description, url, category_id from video where id = ?`)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *VideoMySQL) Get(id int) (*entity.Video, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		err = rows.Scan(&video.ID, &video.Title, &video.Description, &video.URL)
+		err = rows.Scan(&video.ID, &video.Title, &video.Description, &video.URL, &video.CategoryID)
 	}
 	fmt.Println(err)
 	if err != nil {
@@ -64,8 +64,8 @@ func (r *VideoMySQL) Get(id int) (*entity.Video, error) {
 
 func (r *VideoMySQL) Create(e *entity.Video) (int, error) {
 	stmt, err := r.db.Prepare(`
-		insert into video ( title, description, url) 
-		values(?,?,?)`)
+		insert into video ( title, description, url, category_id) 
+		values(?,?,?,? )`)
 	if err != nil {
 		return 0, err
 	}
@@ -73,6 +73,7 @@ func (r *VideoMySQL) Create(e *entity.Video) (int, error) {
 		e.Title,
 		e.Description,
 		e.URL,
+		e.CategoryID,
 	)
 	if err != nil {
 		return 0, err
@@ -87,7 +88,7 @@ func (r *VideoMySQL) Create(e *entity.Video) (int, error) {
 }
 
 func (r *VideoMySQL) Update(e *entity.Video) error {
-	stmt, err := r.db.Prepare("update video set title = ?, description = ?, url = ? where id = ?")
+	stmt, err := r.db.Prepare("update video set title = ?, description = ?, url = ?, category_id = ? where id = ?")
 	if err != nil {
 		return err
 	}
@@ -95,6 +96,7 @@ func (r *VideoMySQL) Update(e *entity.Video) error {
 		e.Title,
 		e.Description,
 		e.URL,
+		e.CategoryID,
 		e.ID,
 	)
 	if err != nil {
